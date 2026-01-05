@@ -1,0 +1,24 @@
+// app/api/admin/products/[id]/sale/route.ts
+import { db } from "@/lib/db";
+import { NextResponse } from "next/server";
+
+export async function PATCH(req: Request, { params }: { params: { id: string } }) {
+  try {
+    const body = await req.json();
+    const { isSale, discountPct } = body;
+
+    const product = await db.product.update({
+      where: { id: params.id },
+      data: {
+        isSale,
+        discountPct,
+        // Backend math for security
+        salePrice: isSale ? (undefined) : null 
+      }
+    });
+
+    return NextResponse.json(product);
+  } catch (error) {
+    return new NextResponse("Internal Error", { status: 500 });
+  }
+}
