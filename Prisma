@@ -1,0 +1,43 @@
+// prisma/schema.prisma
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model Product {
+  id          String   @id @default(cuid())
+  name        String
+  description String
+  basePrice   Decimal
+  images      Image[]
+  category    Category @relation(fields: [categoryId], references: [id])
+  categoryId  String
+  
+  // Discount System
+  isSale      Boolean  @default(false)
+  discountPct Int?     // e.g., 20 for 20%
+  salePrice   Decimal? 
+  
+  sizes       String[] // ["S", "M", "L", "XL"]
+  stock       Int      @default(0)
+  isVisible   Boolean  @default(true)
+  createdAt   DateTime @default(now())
+}
+
+model Category {
+  id       String    @id @default(cuid())
+  name     String    @unique
+  products Product[]
+}
+
+model Image {
+  id        String  @id @default(cuid())
+  url       String
+  productId String
+  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+}
